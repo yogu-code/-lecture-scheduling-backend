@@ -34,7 +34,8 @@ const signup = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000,
     })
 
@@ -51,40 +52,40 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'all fields required' });
+      return res.status(400).json({ error: 'all fields required' })
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
-      return res.status(401).json({ error: 'invalid credentials' });
+      return res.status(401).json({ error: 'invalid credentials' })
     }
 
-    const isCorrect = await bcrypt.compare(password, user.password);
+    const isCorrect = await bcrypt.compare(password, user.password)
     if (!isCorrect) {
-      return res.status(401).json({ error: 'invalid credentials' });
+      return res.status(401).json({ error: 'invalid credentials' })
     }
 
-    const token = createToken({ id: user.id, role: user.role, name: user.name });
+    const token = createToken({ id: user.id, role: user.role, name: user.name })
 
     res.cookie('token', token, {
       httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000
-    });
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000,
+    })
 
     res.status(200).json({
       id: user.id,
       name: user.name,
-      role: user.role
-    });
-
+      role: user.role,
+    })
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'something went wrong' });
+    console.log(err)
+    res.status(500).json({ error: 'something went wrong' })
   }
-};
+}
 
-export { signup , login }
+export { signup, login }
